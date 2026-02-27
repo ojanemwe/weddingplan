@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Wedding Plan Planner</title>
+
+    <!-- PWA Meta -->
+    <meta name="theme-color" content="#d4af37">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon.svg">
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+        rel="stylesheet">
+    <!-- Google Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'media',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            DEFAULT: '#d4af37',
+                            light: '#e6c86a',
+                            dark: '#aa8c2c',
+                        },
+                        secondary: '#f8f5f0',
+                        accent: '#e8a87c',
+                        background: {
+                            light: '#f8fafc',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Manrope', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        script: ['Great Vibes', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200 antialiased font-sans">
+
+    <!-- INSTALL PWA BANNER -->
+    <div id="pwa-install-banner"
+        class="hidden fixed bottom-20 md:bottom-6 left-1/2 transform -translate-x-1/2 bg-gray-900 border border-gray-700 text-white p-3 rounded-2xl shadow-2xl z-[9000] flex items-center justify-between gap-4 w-[90%] md:w-auto max-w-sm">
+        <div class="flex items-center gap-3">
+            <img src="icon.svg" class="w-10 h-10 rounded-xl" alt="App Icon">
+            <div class="flex flex-col">
+                <span class="font-bold text-sm">Wedding Plan</span>
+                <span class="text-xs text-gray-400">Install Aplikasi</span>
+            </div>
+        </div>
+        <button id="pwa-install-btn"
+            class="bg-primary hover:bg-primary-dark text-white text-xs font-bold py-2 px-4 rounded-xl transition-colors">Install</button>
+    </div>
+
+    <!-- PRELOADER -->
+    <div id="loader" class="fixed inset-0 z-[9999] bg-white dark:bg-gray-900 flex flex-col items-center justify-center">
+        <div class="relative w-24 h-24">
+            <div class="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-3xl animate-pulse">favorite</span>
+            </div>
+        </div>
+        <h2 class="mt-8 text-xl font-bold text-gray-800 dark:text-white" id="loaderTitle">Memuat Data...</h2>
+        <p class="text-gray-500 dark:text-gray-400 text-sm mt-2 opacity-80" id="loaderSub">Harap Tunggu</p>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen" class="hidden min-h-screen flex items-center justify-center p-4">
+        <!-- Decoration -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div
+                class="absolute -top-[10%] -right-[10%] w-[50%] max-w-[400px] aspect-square bg-primary/10 dark:bg-primary/5 rounded-full blur-3xl">
+            </div>
+            <div
+                class="absolute -bottom-[10%] -left-[10%] w-[50%] max-w-[400px] aspect-square bg-accent/10 dark:bg-accent/5 rounded-full blur-3xl">
+            </div>
+        </div>
+
+        <div class="relative w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden">
+            <div class="h-2 w-full bg-gradient-to-r from-primary-dark via-primary to-primary-light"></div>
+            <div class="p-8 sm:p-10">
+                <div class="text-center mb-8">
+                    <div
+                        class="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-primary mb-4 border border-primary/20">
+                        <span class="material-symbols-outlined text-3xl">volunteer_activism</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Selamat Datang</h1>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Pilih akun Anda untuk masuk</p>
+                </div>
+
+                <!-- User Selector -->
+                <div id="userListContainer" class="flex flex-col gap-3">
+                    <!-- Users injected here -->
+                </div>
+
+                <!-- PIN verification -->
+                <div id="pinContainer" class="hidden">
+                    <p class="text-center text-sm font-bold text-gray-700 dark:text-gray-300 mb-4">Masukkan PIN Akses
+                    </p>
+                    <div class="flex flex-col gap-4">
+                        <input type="password" id="pinInput"
+                            class="w-full text-center text-2xl tracking-[0.5em] rounded-xl border-2 border-gray-200 focus:border-primary focus:ring-0 px-4 py-3 bg-gray-50 dark:bg-gray-900 dark:border-gray-700 dark:text-white outline-none transition-colors"
+                            placeholder="••••" maxlength="6" inputmode="numeric">
+                        <p id="pinError" class="text-red-500 text-xs text-center font-bold hidden">PIN Salah!</p>
+                        <div class="flex gap-3 mt-2">
+                            <button onclick="cancelLogin()"
+                                class="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-xl font-bold text-gray-600 dark:text-gray-300 transition-colors">Kembali</button>
+                            <button onclick="verifyPin()"
+                                class="flex-1 py-3 px-4 bg-primary hover:bg-primary-dark rounded-xl font-bold text-white transition-colors">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD/SPA Container -->
+    <div id="appContainer" class="hidden min-h-screen flex flex-col relative w-full overflow-x-hidden">
+
+        <!-- HEADER STICKY -->
+        <header
+            class="sticky top-0 z-[100] w-full border-b border-gray-100 dark:border-gray-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md">
+            <div class="layout-container flex h-full grow flex-col max-w-[1280px] mx-auto">
+                <div class="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 lg:px-10">
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <div
+                            class="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 text-primary bg-primary/10 rounded-full border border-primary/20">
+                            <span class="material-symbols-outlined text-[18px] sm:text-[22px]">favorite</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span id="headerAppName"
+                                class="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-primary mb-[0px] sm:mb-[-4px]">Wedding
+                                Plan</span>
+                            <h2 class="text-lg sm:text-xl md:text-2xl font-script font-bold leading-tight tracking-wide text-gray-800 dark:text-white"
+                                id="headerTitle">Ojan & Juju</h2>
+                        </div>
+                    </div>
+
+                    <!-- Desktop Nav -->
+                    <nav class="hidden md:flex flex-1 justify-center gap-8" id="desktopNav">
+                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
+                            onclick="navigate('beranda')" id="nav-beranda">Beranda</a>
+                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
+                            onclick="navigate('todo')" id="nav-todo">ToDo List</a>
+                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
+                            onclick="navigate('kalender')" id="nav-kalender">Kalender</a>
+                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
+                            onclick="navigate('tabungan')" id="nav-tabungan">Tabungan</a>
+                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200 admin-only hidden"
+                            onclick="navigate('setting')" id="nav-setting">Setting</a>
+                    </nav>
+
+                    <div class="flex items-center gap-2 md:gap-4">
+                        <div
+                            class="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 rounded-full border border-gray-100 dark:border-gray-700">
+                            <span
+                                class="material-symbols-outlined text-primary text-[16px] md:text-[20px]">account_circle</span>
+                            <span id="currentUserLabel" class="truncate max-w-[80px] md:max-w-none">User</span>
+                        </div>
+                        <button onclick="logout()"
+                            class="flex items-center justify-center w-8 h-8 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                            title="Keluar">
+                            <span class="material-symbols-outlined text-[16px]">logout</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Pages Content Wrapper -->
+        <main class="flex-1 w-full bg-background-light dark:bg-background-dark pb-24 md:pb-12">
+
+            <!-- SECTION 1: BERANDA -->
+            <div id="page-beranda" class="page-content active">
+                <div class="@container w-full max-w-[1280px] px-4 py-6 md:py-8 lg:px-10 z-10 mx-auto">
+                    <!-- Hero / Countdown Section -->
+                    <div
+                        class="relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-xl min-h-[400px] sm:min-h-[500px] border border-primary/20 mb-6 sm:mb-8">
+                        <div class="absolute inset-0 bg-cover bg-center"
+                            style='background-image: linear-gradient(rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%), url("https://lh3.googleusercontent.com/aida-public/AB6AXuAngXENKZqjk2dotkZoo0P-2_Z1nrJFQ9LeAceXm_zSoFpRoZuuuw0NWulZg91D1yQfb9FH3yxxUKWUlCxltam6zDRQvq1IC5VD1gBCe9MFe9u8hoocG3OvnS7Ks8UhhriwBz4KQQVWznHo3GAuUzKmxWSgSUya_9QB1703LiIqyQ-LcjH62FJ7kh9gViFXhF1ZcG5z4qFwp2RuD2qVoMPIt1CRLB4mWp2crMNr5nG74qH4Ob3aUiOXzYTsTGQkHHiYN6TVcVj5Oww");'>
+                        </div>
+                        <div class="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 opacity-40"><img alt="decoration"
+                                class="w-full h-full object-contain -rotate-90"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKaqkPY16T_b_9R_5YSNis_DD49pC45w0r1F8wgOK7j8-W38_hHWOeeQQWXrFKMP2VKtzaVx9jK7r5cgjWaw8UaMYRolcdiCf6dPAK7jHeY4BJqyS1Mtg89FgwojFg02op7m0OC0q-vlCNBMTGkqOOj5X6EsfJbSLa3luHLIBF3MZHWtBIR5AohZ1TlMpCje1jiaWKAeMXH3EZScm2MXGino_7upN4JQYT1Q8LPq0Fk9ku1zziZXs_GKqLc1JcP_U2DHR-qN9PYKE" />
+                        </div>
+                        <div class="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 opacity-40"><img alt="decoration"
+                                class="w-full h-full object-contain"
+                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtNjRDm3gX_2LGM2Y9sKzUjf3SBTl65Y9h2nH2SfEhbckDakuc5nWMr8GVXJB_SKIa67ndSjUrVGhU2_OoW_aN5f_AYgAb4f1-aacTUROhDrINPsYSCmWi1zfd70j2Fn7sn_TV0xgmUkI4a0Ig-zhCZM9igJ1CB9NMkXz-v8cJpsoZ5B5PfsIYAvszpoS70FV9kGouhP14Cw2y0sB6ihptyaJ55CvvHdezh5vuv9iuQALMxp-mRcFMSV8CfQRYhCtpSOUIploGUk8" />
+                        </div>
+
+                        <div
+                            class="relative z-10 flex flex-col h-full items-center justify-center text-center p-4 sm:p-6 gap-6 flex-1">
+                            <div
+                                class="inline-flex items-center justify-center py-1 px-3 sm:p-2 sm:px-4 rounded-full bg-primary/10 mb-0">
+                                <span
+                                    class="text-primary tracking-widest uppercase text-[10px] sm:text-xs font-bold">Menuju
+                                    Hari Bahagia</span>
+                            </div>
+
+                            <div class="flex flex-col gap-6 max-w-4xl items-center w-full">
+                                <div class="flex flex-col items-center gap-2">
+                                    <h1
+                                        class="text-gray-800 dark:text-white text-2xl sm:text-3xl md:text-5xl font-serif font-bold tracking-tight">
+                                        Countdown Pernikahan</h1>
+                                    <p class="text-gray-500 font-medium text-xs sm:text-lg"
+                                        id="berandaTargetDateDisplay">Memuat Tanggal...</p>
+                                </div>
+
+                                <div class="grid grid-cols-4 gap-2 sm:gap-4 md:gap-8 w-full max-w-3xl px-2 sm:px-4">
+                                    <div class="flex flex-col items-center">
+                                        <div
+                                            class="flex items-center justify-center w-full aspect-square bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-lg border border-primary/20 relative overflow-hidden">
+                                            <span
+                                                class="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-primary tabular-nums"
+                                                id="cd-hari">0</span>
+                                        </div>
+                                        <span
+                                            class="mt-2 text-[10px] sm:text-sm font-bold uppercase tracking-widest text-gray-500">Hari</span>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div
+                                            class="flex items-center justify-center w-full aspect-square bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-lg border border-primary/20 relative overflow-hidden">
+                                            <span
+                                                class="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-primary tabular-nums"
+                                                id="cd-jam">00</span>
+                                        </div>
+                                        <span
+                                            class="mt-2 text-[10px] sm:text-sm font-bold uppercase tracking-widest text-gray-500">Jam</span>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div
+                                            class="flex items-center justify-center w-full aspect-square bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-lg border border-primary/20 relative overflow-hidden">
+                                            <span
+                                                class="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-primary tabular-nums"
+                                                id="cd-menit">00</span>
+                                        </div>
+                                        <span
+                                            class="mt-2 text-[10px] sm:text-sm font-bold uppercase tracking-widest text-gray-500">Menit</span>
+                                    </div>
+                                    <div class="flex flex-col items-center">
+                                        <div
+                                            class="flex items-center justify-center w-full aspect-square bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl shadow-lg border border-primary/20 relative overflow-hidden">
+                                            <span
+                                                class="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-primary tabular-nums"
+                                                id="cd-detik">00</span>
+                                        </div>
+                                        <span
+                                            class="mt-2 text-[10px] sm:text-sm font-bold uppercase tracking-widest text-gray-500">Detik</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Stats Section -->
+                    <div class="flex flex-col md:flex-row gap-6 sm:gap-8">
+                        <div class="w-full md:w-2/3 flex flex-col gap-6">
+                            <!-- Checklist Preview -->
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-6">
+                                <div class="flex items-center justify-between mb-4 sm:mb-6">
+                                    <h3
+                                        class="text-base sm:text-xl font-serif font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                                        <span
+                                            class="material-symbols-outlined text-primary text-[20px] sm:text-[24px]">checklist</span>
+                                        Tugas Prioritas
+                                    </h3>
+                                    <a class="text-xs sm:text-sm text-primary font-medium hover:underline cursor-pointer"
+                                        onclick="navigate('todo')">Ke ToDo</a>
+                                </div>
+                                <div class="space-y-3 sm:space-y-4" id="berandaTodoList">
+                                    <p class="text-xs sm:text-sm text-gray-500 italic">Memuat tugas...</p>
+                                </div>
+                            </div>
+
+                            <!-- Tabungan Preview -->
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 sm:p-6 flex flex-col justify-between">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3
+                                        class="text-base sm:text-lg font-serif font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                                        <span
+                                            class="material-symbols-outlined text-primary text-[20px] sm:text-[24px]">savings</span>
+                                        Progres Tabungan
+                                    </h3>
+                                    <span id="berandaTabunganStatus"
+                                        class="text-[10px] sm:text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">Memuat...</span>
+                                </div>
+
+                                <div class="relative pt-2">
+                                    <div class="flex items-end justify-between mb-2">
+                                        <div>
+                                            <span class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white"
+                                                id="berandaTabunganPersen">0%</span>
+                                            <span class="text-xs sm:text-sm text-gray-500 ml-1">Tercapai</span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] sm:text-xs text-gray-500">Terkumpul</p>
+                                            <p class="text-xs sm:text-sm font-bold text-primary"
+                                                id="berandaTabunganTerkumpul">Rp 0</p>
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 sm:h-3 mb-4 overflow-hidden">
+                                        <div id="berandaTabunganBar"
+                                            class="bg-primary h-full rounded-full transition-all duration-1000"
+                                            style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="w-full md:w-1/3 flex flex-col gap-6">
+                            <div
+                                class="bg-primary text-white rounded-xl shadow-lg shadow-primary/20 p-6 relative overflow-hidden">
+                                <div class="relative z-10 h-full flex flex-col justify-between">
+                                    <div>
+                                        <h3 class="text-lg font-serif font-bold text-white mb-1">Inspirasi</h3>
+                                        <p class="text-white/90 text-sm font-medium italic mt-2">"Dan segala sesuatu
+                                            Kami ciptakan berpasang-pasangan supaya kamu mengingat kebesaran Allah."</p>
+                                        <p class="text-xs text-white/70 mt-2">- QS. Adz-Dzariyat: 49</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: TODO LIST -->
+            <div id="page-todo" class="page-content">
+                <div
+                    class="layout-container flex flex-col items-center py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+                    <div class="w-full flex flex-col gap-4 sm:gap-6">
+                        <header
+                            class="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 p-4 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700">
+                            <div class="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                                <div class="space-y-1 sm:space-y-2">
+                                    <div
+                                        class="flex items-center gap-2 text-primary-dark font-semibold text-xs sm:text-sm uppercase tracking-wider">
+                                        <span class="material-symbols-outlined text-[16px] sm:text-sm">checklist</span>
+                                        <span>Perencanaan</span>
+                                    </div>
+                                    <h1
+                                        class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
+                                        Checklist Pernikahan</h1>
+                                </div>
+                                <button onclick="openTodoModal()"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary-dark text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold shadow-sm w-full sm:w-auto mt-2 sm:mt-0">
+                                    <span class="material-symbols-outlined text-[16px] sm:text-[18px]">add</span>
+                                    <span>Tugas Baru</span>
+                                </button>
+                            </div>
+                        </header>
+
+                        <!-- Filters layout horizontal scroll on mobile -->
+                        <div
+                            class="flex flex-row overflow-x-auto items-center gap-4 sm:gap-6 border-b border-gray-200 dark:border-gray-800 px-1 sm:px-2 scrollbar-none pb-0">
+                            <button onclick="filterTodos('Semua')" id="filter-Semua"
+                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-primary text-gray-900 dark:text-white font-bold text-xs sm:text-sm">Semua</button>
+                            <button onclick="filterTodos('Belum Selesai')" id="filter-Belum"
+                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Belum
+                                Selesai</button>
+                            <button onclick="filterTodos('Selesai')" id="filter-Selesai"
+                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Selesai</button>
+                            <button onclick="filterTodos('Prioritas Tinggi')" id="filter-Prioritas"
+                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Prioritas</button>
+                        </div>
+
+                        <!-- List Container -->
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700 shadow-sm"
+                            id="todoListContainer">
+                            <div class="p-8 text-center text-gray-500 text-sm">Memuat daftar tugas...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal TODO -->
+                <div id="todoModal"
+                    class="hidden fixed inset-0 z-[200] bg-gray-900/50 backdrop-blur-sm shadow-2xl flex items-center justify-center p-4">
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 relative max-h-[90vh] overflow-y-auto">
+                        <button onclick="closeTodoModal()"
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-4"
+                            id="todoModalTitle">Tambah Tugas</h2>
+
+                        <form id="todoForm" class="space-y-4">
+                            <input type="hidden" id="todoId" value="">
+                            <div>
+                                <label
+                                    class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori</label>
+                                <select id="todoKategori"
+                                    class="w-full text-sm rounded-lg border-gray-300 focus:ring-primary focus:border-primary px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:text-white outline-none">
+                                    <option value="Umum">Umum</option>
+                                    <option value="Akad">Akad</option>
+                                    <option value="Resepsi">Resepsi</option>
+                                    <option value="Pernak-Pernik">Pernak-Pernik</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama
+                                    Tugas</label>
+                                <input type="text" id="todoTugas" required
+                                    class="w-full text-sm rounded-lg border-gray-300 focus:ring-primary focus:border-primary px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:text-white outline-none"
+                                    placeholder="Contoh: Booking KUA">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">P.
+                                        Jawab</label>
+                                    <select id="todoPIC"
+                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-primary focus:border-primary px-3 py-2 sm:py-2.5 bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:text-white outline-none">
+                                        <option value="Ojan">Ojan</option>
+                                        <option value="Juju">Juju</option>
+                                        <option value="Bersama">Bersama</option>
+                                        <option value="Keluarga">Keluarga</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deadline</label>
+                                    <input type="date" id="todoDeadline"
+                                        class="w-full text-sm rounded-lg border-gray-300 focus:ring-primary focus:border-primary px-3 py-2 sm:py-2.5 bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:text-white outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Prioritas</label>
+                                <div class="flex gap-4 items-center">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="todoPrioritas" value="Normal" checked
+                                            class="text-primary focus:ring-primary w-4 h-4">
+                                        <span class="text-xs sm:text-sm dark:text-gray-300">Normal</span>
+                                    </label>
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="todoPrioritas" value="Tinggi"
+                                            class="text-red-500 focus:ring-red-500 w-4 h-4">
+                                        <span
+                                            class="text-xs sm:text-sm text-red-600 dark:text-red-400 font-bold">Tinggi</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 sm:gap-3 pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
+                                <button type="button" onclick="closeTodoModal()"
+                                    class="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 font-bold text-xs sm:text-sm transition-colors">Batal</button>
+                                <button type="button" onclick="submitTodoForm()"
+                                    class="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-primary hover:bg-primary-dark text-white font-bold text-xs sm:text-sm transition-colors shadow">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: KALENDER -->
+            <div id="page-kalender" class="page-content">
+                <div
+                    class="layout-container flex flex-col items-center py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+                    <div class="w-full flex flex-col gap-4 sm:gap-6">
+                        <header
+                            class="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
+                            <div class="relative z-10 flex flex-col items-center gap-2 sm:gap-4">
+                                <div
+                                    class="h-12 w-12 sm:h-16 sm:w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary border border-primary/20">
+                                    <span class="material-symbols-outlined text-2xl sm:text-3xl">calendar_month</span>
+                                </div>
+                                <div>
+                                    <h1
+                                        class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                                        Riwayat</h1>
+                                    <p
+                                        class="text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 text-xs sm:text-sm max-w-md mx-auto">
+                                        Tugas persiapan yang telah diselesaikan.</p>
+                                </div>
+                            </div>
+                        </header>
+                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 shadow-sm"
+                            id="kalenderListContainer">
+                            <div class="p-8 text-center text-gray-500 text-sm">Memuat riwayat...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: TABUNGAN -->
+            <div id="page-tabungan" class="page-content">
+                <div class="layout-container flex flex-col items-center py-6 sm:py-8 px-4 lg:px-8 max-w-6xl mx-auto">
+                    <div class="mb-6 flex flex-col sm:flex-row md:items-end justify-between gap-4 w-full">
+                        <div>
+                            <h1
+                                class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-1">
+                                Tabungan</h1>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-lg">Pantau progres pernikahan.
+                            </p>
+                        </div>
+                        <div
+                            class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-gray-100 self-start sm:self-auto shadow-sm">
+                            <span class="material-symbols-outlined text-[16px] sm:text-lg text-primary">flag</span>
+                            <span id="tabunganTargetDisplay">Memuat...</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 w-full">
+                        <div class="lg:col-span-5 flex flex-col gap-4 sm:gap-6">
+                            <!-- Input Form -->
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
+                                <div class="grid grid-cols-1 gap-2 mb-4">
+                                    <p class="text-xs sm:text-sm font-medium text-gray-500">Total Tabungan</p>
+                                    <p class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white"
+                                        id="tabunganTotal">Rp 0</p>
+                                    <div class="space-y-1 mt-2">
+                                        <div class="flex justify-between items-end">
+                                            <span class="text-xs sm:text-sm font-bold text-gray-900 dark:text-white"
+                                                id="tabunganProgressTxt">0%</span>
+                                            <span class="text-[10px] sm:text-xs font-medium text-primary"
+                                                id="tabunganKurangTxt">Kurang: Rp 0</span>
+                                        </div>
+                                        <div
+                                            class="h-2 sm:h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                            <div class="h-full bg-primary rounded-full transition-all"
+                                                id="tabunganProgressBar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h2
+                                    class="text-lg font-bold text-gray-900 dark:text-white mb-4 mt-6 flex items-center gap-2 border-t pt-4">
+                                    <span class="material-symbols-outlined text-primary">add_circle</span> Tambah
+                                    Setoran
+                                </h2>
+                                <form id="tabunganForm" class="space-y-4">
+                                    <input type="hidden" id="tabunganId" value="">
+                                    <input type="hidden" id="tabunganBase64" value="">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label
+                                                class="block text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-300">Nominal
+                                                Rp</label>
+                                            <input type="number" id="tabunganNominal" required
+                                                class="block w-full rounded-lg border-gray-300 p-2 sm:p-2.5 bg-gray-50 dark:bg-gray-900 text-sm outline-none"
+                                                placeholder="10000" />
+                                        </div>
+                                        <div>
+                                            <label
+                                                class="block text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-300">Tanggal</label>
+                                            <input type="date" id="tabunganTanggal" required
+                                                class="block w-full rounded-lg border-gray-300 p-2 sm:p-2.5 bg-gray-50 dark:bg-gray-900 text-sm outline-none" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-300">Penyetor</label>
+                                        <select id="tabunganPenyetor"
+                                            class="block w-full rounded-lg border-gray-300 p-2 sm:p-2.5 bg-gray-50 dark:bg-gray-900 text-sm outline-none">
+                                            <option value="Ojan">Ojan</option>
+                                            <option value="Juju">Juju</option>
+                                            <option value="Tabungan Bersama">Tabungan Bersama</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-300">Ket(Ops)</label>
+                                        <input type="text" id="tabunganKeterangan"
+                                            class="block w-full rounded-lg border-gray-300 p-2 sm:p-2.5 bg-gray-50 dark:bg-gray-900 text-sm outline-none"
+                                            placeholder="Tujuan">
+                                    </div>
+                                    <div>
+                                        <label
+                                            class="block text-xs sm:text-sm font-medium text-gray-900 dark:text-gray-300 mb-1">Bukti(Ops)</label>
+                                        <div class="flex items-center gap-2">
+                                            <label
+                                                class="cursor-pointer bg-gray-100 dark:bg-gray-700 py-1.5 px-3 rounded text-xs font-medium inline-flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[14px]">upload</span> Pilih
+                                                Foto
+                                                <input type="file" id="tabunganFileInput" accept="image/*"
+                                                    class="hidden" onchange="processFile(event)">
+                                            </label>
+                                            <div id="filePreviewContainer"
+                                                class="hidden relative h-10 w-10 border rounded bg-gray-200 overflow-hidden">
+                                                <img id="filePreviewImg" src="" class="h-full w-full object-cover">
+                                                <button type="button" onclick="clearFile()"
+                                                    class="absolute top-0 right-0 bg-red-500 text-white p-0.5"><span
+                                                        class="material-symbols-outlined text-[10px]">close</span></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pt-2 flex gap-2">
+                                        <button type="button" onclick="resetTabunganForm()"
+                                            class="hidden px-4 py-2 bg-gray-200 text-black text-xs font-bold rounded"
+                                            id="btnBatalEditTabungan">Batal</button>
+                                        <button type="button" onclick="submitTabunganForm()"
+                                            class="flex-1 py-2 bg-primary text-white text-sm font-bold rounded"
+                                            id="btnSimpanTabungan">Simpan</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-7">
+                            <div
+                                class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[500px]">
+                                <div class="p-4 border-b border-gray-100 flex justify-between">
+                                    <h2 class="text-sm sm:text-base font-bold text-gray-900 dark:text-white">Riwayat
+                                        Transaksi</h2>
+                                </div>
+                                <div class="overflow-y-auto p-2 sm:p-4 flex-1">
+                                    <div class="space-y-2" id="tabunganListWrapper">
+                                        <p class="text-center text-xs text-gray-400 mt-4">Memuat...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: SETTING -->
+            <div id="page-setting" class="page-content">
+                <div class="layout-container flex flex-col items-center py-6 sm:py-8 px-4 sm:px-6 max-w-4xl mx-auto">
+                    <div class="w-full flex flex-col gap-4 sm:gap-6">
+                        <header
+                            class="relative rounded-xl bg-white dark:bg-gray-800 p-6 sm:p-8 shadow-sm border border-gray-100">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <div
+                                    class="h-10 w-10 sm:h-14 sm:w-14 bg-primary/10 rounded-full flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined text-2xl sm:text-3xl">settings</span>
+                                </div>
+                                <div>
+                                    <h1
+                                        class="text-xl sm:text-2xl lg:text-3xl font-black text-gray-900 dark:text-white mb-1">
+                                        Pengaturan</h1>
+                                    <p class="text-xs sm:text-sm text-gray-500">Sesuaikan aplikasi untuk Anda.</p>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 sm:p-8 shadow-sm border border-gray-100">
+                            <form id="settingForm" class="space-y-5">
+                                <div>
+                                    <label
+                                        class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Judul
+                                        Aplikasi</label>
+                                    <input type="text" id="setAppTitle"
+                                        class="w-full rounded-lg border-gray-300 p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 text-sm outline-none"
+                                        placeholder="Wedding Plan">
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-bold mb-1">Waktu Acara</label>
+                                        <input type="datetime-local" id="setTargetDate"
+                                            class="w-full rounded-lg p-2 sm:p-3 bg-gray-50 border outline-none text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs sm:text-sm font-bold mb-1">Target Tabungan
+                                            (Rp)</label>
+                                        <input type="number" id="setTargetTabungan"
+                                            class="w-full rounded-lg p-2 sm:p-3 bg-gray-50 border outline-none text-sm">
+                                    </div>
+                                </div>
+                                <div class="pt-4 flex justify-end">
+                                    <button type="button" onclick="submitSettings()"
+                                        class="bg-primary hover:bg-primary-dark text-white px-6 py-2 sm:py-3 rounded-lg text-sm font-bold">Simpan
+                                        Pengaturan</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Tab Navigation for Mobile -->
+        <nav
+            class="md:hidden fixed bottom-0 left-0 right-0 z-50 w-full h-auto min-h-[64px] pb-[env(safe-area-inset-bottom)] bg-white dark:bg-background-dark border-t border-gray-100 dark:border-gray-800 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] pt-1">
+            <div class="flex h-[60px] w-full mx-auto justify-around items-center font-medium px-2">
+                <button type="button" onclick="navigate('beranda')" id="mobile-nav-beranda"
+                    class="mobile-nav-button flex-1 flex flex-col items-center justify-center group text-primary transition-colors">
+                    <span class="material-symbols-outlined mb-0.5 text-[24px]">home</span>
+                    <span class="text-[10px] sm:text-[11px] font-semibold truncate block">Beranda</span>
+                </button>
+                <button type="button" onclick="navigate('todo')" id="mobile-nav-todo"
+                    class="mobile-nav-button flex-1 flex flex-col items-center justify-center group text-gray-500 dark:text-gray-400 transition-colors">
+                    <span class="material-symbols-outlined mb-0.5 text-[24px]">checklist</span>
+                    <span class="text-[10px] sm:text-[11px] font-semibold truncate block">ToDo</span>
+                </button>
+                <button type="button" onclick="navigate('kalender')" id="mobile-nav-kalender"
+                    class="mobile-nav-button flex-1 flex flex-col items-center justify-center group text-gray-500 dark:text-gray-400 transition-colors">
+                    <span class="material-symbols-outlined mb-0.5 text-[24px]">calendar_month</span>
+                    <span class="text-[10px] sm:text-[11px] font-semibold truncate block">Kalender</span>
+                </button>
+                <button type="button" onclick="navigate('tabungan')" id="mobile-nav-tabungan"
+                    class="mobile-nav-button flex-1 flex flex-col items-center justify-center group text-gray-500 dark:text-gray-400 transition-colors">
+                    <span class="material-symbols-outlined mb-0.5 text-[24px]">savings</span>
+                    <span class="text-[10px] sm:text-[11px] font-semibold truncate block">Tabungan</span>
+                </button>
+                <button type="button" onclick="navigate('setting')" id="mobile-nav-setting"
+                    class="mobile-nav-button admin-only hidden flex-1 flex-col items-center justify-center group text-gray-500 dark:text-gray-400 transition-colors">
+                    <span class="material-symbols-outlined mb-0.5 text-[24px]">settings</span>
+                    <span class="text-[10px] sm:text-[11px] font-semibold truncate block">Setting</span>
+                </button>
+            </div>
+        </nav>
+
+    </div>
+
+    <!-- Modal Foto Viewer -->
+    <div id="fotoModal"
+        class="hidden fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm shadow-2xl flex items-center justify-center p-4">
+        <div class="relative max-w-2xl w-full">
+            <button onclick="document.getElementById('fotoModal').classList.add('hidden')"
+                class="absolute -top-10 right-0 text-white"><span
+                    class="material-symbols-outlined text-4xl">close</span></button>
+            <img id="fotoModalImg" src="" class="w-full rounded-lg obj-contain" />
+        </div>
+    </div>
+
+    <!-- Main JS Application Logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
+
+body {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Scrollbar for list container */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(212, 175, 55, 0.3);
+    border-radius: 20px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(212, 175, 55, 0.5);
+}
+
+/* Islamic Pattern Background */
+.islamic-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l14.14 14.14L30 28.28 15.86 14.14 30 0zm0 60L15.86 45.86 30 31.72l14.14 14.14L30 60zm30-30L45.86 15.86 31.72 30l14.14 14.14L60 30zM0 30l14.14-14.14L28.28 30 14.14 44.14 0 30z' fill='currentColor' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+/* Checkbox animations */
+@keyframes checkmark {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.animate-check {
+    animation: checkmark 0.3s ease-in-out forwards;
+}
+
+/* Strikethrough animation */
+.todo-text-strike {
+    position: relative;
+    display: inline-block;
+}
+.todo-text-strike::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    height: 1.5px;
+    background-color: currentColor;
+    width: 100%;
+    transition: transform 0.3s ease-out;
+    transform-origin: left;
+    transform: scaleX(1);
+}
+.todo-text-nostrike::after {
+    transform: scaleX(0);
+}
+
+/* Animations that are useful universally */
+.fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
