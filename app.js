@@ -5,7 +5,7 @@
  */
 
 // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA SAAT DI-DEPLOY NANTI
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbweDVytZtMTqSz5eFlK3ItfkNnojJjaWC9uEMVm1UziifPpVTGp0BAuqMEGSPKxgqCV/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxAM959nFD9rz3nCIlFzca9FfPIRXJ2XVa6_onCcdbqyFYZ22wP273WFJQqWGPWa8Vt/exec";
 
 // Global Application Data Configuration
 let AppData = {
@@ -439,12 +439,13 @@ function renderTodos() {
         let adminActions = '';
         if (AppData.currentUser && AppData.currentUser.role === 'admin') {
             adminActions = `
-                <div class="opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex items-center gap-1 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-1 rounded-lg">
                     <button onclick="editTodo('${item.id}')" title="Edit" class="p-1 sm:p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors"><span class="material-symbols-outlined text-[16px] sm:text-[18px]">edit</span></button>
                     <button onclick="deleteTodo('${item.id}')" title="Hapus" class="p-1 sm:p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"><span class="material-symbols-outlined text-[16px] sm:text-[18px]">delete</span></button>
-                </div>
             `;
         }
+
+        // View button visible to everyone
+        const viewButton = `<button onclick="viewTodoDetail('${item.id}')" title="Lihat Detail" class="p-1 sm:p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors"><span class="material-symbols-outlined text-[16px] sm:text-[18px]">visibility</span></button>`;
 
         const picColor = getPicColor(item.penanggungJawab);
 
@@ -476,8 +477,11 @@ function renderTodos() {
                     </div>
                 </div>
 
-                <div class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-2" onclick="event.stopPropagation()">
-                    ${adminActions}
+                <div class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex items-center gap-1" onclick="event.stopPropagation()">
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-1 rounded-lg">
+                        ${viewButton}
+                        ${adminActions}
+                    </div>
                 </div>
             </div>
         `;
@@ -513,6 +517,7 @@ function openTodoModal() {
     if (!AppData.currentUser || AppData.currentUser.role !== 'admin') return alert("Hanya admin yang dapat menambah/mengedit tugas.");
     document.getElementById('todoForm').reset();
     document.getElementById('todoId').value = '';
+    document.getElementById('todoKeterangan').value = '';
     document.getElementById('todoModalTitle').innerText = 'Tambah Tugas';
     document.getElementById('todoModal').classList.remove('hidden');
 }
@@ -528,7 +533,8 @@ async function submitTodoForm() {
         tugas: document.getElementById('todoTugas').value,
         penanggungJawab: document.getElementById('todoPIC').value,
         deadline: document.getElementById('todoDeadline').value,
-        prioritas: document.querySelector('input[name="todoPrioritas"]:checked').value
+        prioritas: document.querySelector('input[name="todoPrioritas"]:checked').value,
+        keterangan: document.getElementById('todoKeterangan').value
     };
 
     if (!payload.tugas) return alert("Peringatan: Nama Tugas harus diisi!");
@@ -600,6 +606,7 @@ function editTodo(id) {
     document.getElementById('todoTugas').value = item.tugas;
     document.getElementById('todoPIC').value = item.penanggungJawab;
     document.getElementById('todoDeadline').value = item.deadline ? item.deadline.substring(0, 10) : '';
+    document.getElementById('todoKeterangan').value = item.keterangan || '';
 
     document.querySelectorAll('input[name="todoPrioritas"]').forEach(r => {
         if (r.value === item.prioritas) r.checked = true;
@@ -607,6 +614,39 @@ function editTodo(id) {
 
     document.getElementById('todoModalTitle').innerText = 'Edit Tugas';
     document.getElementById('todoModal').classList.remove('hidden');
+}
+
+function viewTodoDetail(id) {
+    const item = AppData.todos.find(x => x.id === id);
+    if (!item) return;
+
+    document.getElementById('todoDetailTitle').innerText = item.tugas;
+    document.getElementById('todoDetailKategori').innerText = item.kategori;
+    document.getElementById('todoDetailPIC').innerText = item.penanggungJawab;
+    document.getElementById('todoDetailDeadline').innerText = item.deadline ? formatDateIndo(item.deadline) : 'Tanpa Tenggat';
+
+    const prioEl = document.getElementById('todoDetailPrioritas');
+    if (item.prioritas === 'Tinggi') {
+        prioEl.innerText = '⚠ Penting';
+        prioEl.className = 'text-xs font-bold uppercase px-2 py-1 rounded bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+    } else {
+        prioEl.innerText = 'Normal';
+        prioEl.className = 'text-xs font-bold uppercase px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
+    }
+
+    const ketEl = document.getElementById('todoDetailKeterangan');
+    ketEl.innerText = item.keterangan && item.keterangan.trim() !== '' ? item.keterangan : '(Tidak ada keterangan)';
+    if (!item.keterangan || item.keterangan.trim() === '') {
+        ketEl.classList.add('text-gray-400', 'italic');
+    } else {
+        ketEl.classList.remove('text-gray-400', 'italic');
+    }
+
+    document.getElementById('todoDetailModal').classList.remove('hidden');
+}
+
+function closeTodoDetailModal() {
+    document.getElementById('todoDetailModal').classList.add('hidden');
 }
 
 
