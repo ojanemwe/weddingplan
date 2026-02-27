@@ -119,7 +119,15 @@ function selectUser(userId) {
     selectedUserForLogin = AppData.users.find(u => u.id === userId);
     document.getElementById('userListContainer').classList.add('hidden');
     document.getElementById('pinContainer').classList.remove('hidden');
-    document.getElementById('pinInput').focus();
+    const pinEl = document.getElementById('pinInput');
+    pinEl.focus();
+    // Allow Enter key / mobile "Go" button to submit PIN
+    pinEl.onkeydown = function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            verifyPin();
+        }
+    };
 }
 
 function cancelLogin() {
@@ -164,6 +172,9 @@ function performLogin() {
     // Set Header/Titles (Config from API)
     document.title = AppData.settings.AppTitle || 'Wedding Plan';
     document.getElementById('headerAppName').innerText = AppData.settings.AppTitle || 'Wedding Plan';
+
+    // Initialize SPA page - show only Beranda
+    navigate('beranda');
 
     // RENDER COMPONENTS
     initCountDown();
@@ -936,4 +947,3 @@ window.addEventListener('appinstalled', () => {
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
     pwaBanner.classList.add('hidden');
 }
-
