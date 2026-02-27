@@ -5,7 +5,7 @@
  */
 
 // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA SAAT DI-DEPLOY NANTI
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycby_PASTIKAN_ANDA_MENGGANTI_INI_DENGAN_URL_GAS_YANG_BARU/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbweDVytZtMTqSz5eFlK3ItfkNnojJjaWC9uEMVm1UziifPpVTGp0BAuqMEGSPKxgqCV/exec";
 
 // Global Application Data Configuration
 let AppData = {
@@ -936,3 +936,4 @@ window.addEventListener('appinstalled', () => {
 if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
     pwaBanner.classList.add('hidden');
 }
+
