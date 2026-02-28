@@ -151,8 +151,8 @@
                         </div>
                         <div class="flex flex-col">
                             <span id="headerAppName"
-                                class="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-primary mb-[0px] sm:mb-[-4px]">Love
-                                Planer</span>
+                                class="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-primary mb-[0px] sm:mb-[-4px]">Wedding
+                                Plan</span>
                             <h2 class="text-lg sm:text-xl md:text-2xl font-script font-bold leading-tight tracking-wide text-gray-800 dark:text-white"
                                 id="headerTitle">Ojan & Juju</h2>
                         </div>
@@ -365,7 +365,7 @@
                                     </div>
                                     <h1
                                         class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-                                        Checklist Rencana "Kita"</h1>
+                                        Checklist Pernikahan</h1>
                                 </div>
                                 <button onclick="openTodoModal()"
                                     class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary-dark text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold shadow-sm w-full sm:w-auto mt-2 sm:mt-0">
@@ -571,10 +571,18 @@
                             <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-lg">Pantau progres pernikahan.
                             </p>
                         </div>
-                        <div
-                            class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-gray-100 self-start sm:self-auto shadow-sm">
-                            <span class="material-symbols-outlined text-[16px] sm:text-lg text-primary">flag</span>
-                            <span id="tabunganTargetDisplay">Memuat...</span>
+                        <div class="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+                            <div
+                                class="flex items-center gap-2 text-xs sm:text-sm text-gray-500 bg-white dark:bg-gray-800 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-gray-100 shadow-sm">
+                                <span class="material-symbols-outlined text-[16px] sm:text-lg text-primary">flag</span>
+                                <span id="tabunganTargetDisplay">Memuat...</span>
+                            </div>
+                            <button
+                                onclick="document.getElementById('fotoModalImg').src='qris.jpeg'; document.getElementById('fotoModal').classList.remove('hidden');"
+                                class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-dark px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-sm transition-colors">
+                                <span class="material-symbols-outlined text-[16px] sm:text-lg">qr_code_2</span>
+                                <span>Lihat QR</span>
+                            </button>
                         </div>
                     </div>
 
@@ -786,12 +794,16 @@
 
     <!-- Modal Foto Viewer -->
     <div id="fotoModal"
-        class="hidden fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm shadow-2xl flex items-center justify-center p-4">
-        <div class="relative max-w-2xl w-full">
+        class="hidden fixed inset-0 z-[300] bg-black/80 backdrop-blur-sm shadow-2xl flex items-center justify-center p-4 sm:p-8">
+
+        <div class="relative flex flex-col items-center max-w-full max-h-full">
             <button onclick="document.getElementById('fotoModal').classList.add('hidden')"
-                class="absolute -top-10 right-0 text-white"><span
-                    class="material-symbols-outlined text-4xl">close</span></button>
-            <img id="fotoModalImg" src="" class="w-full rounded-lg obj-contain" />
+                class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
+                <span class="material-symbols-outlined text-4xl">close</span>
+            </button>
+
+            <img id="fotoModalImg" src=""
+                class="rounded-lg shadow-2xl object-contain max-w-full max-h-[80vh] md:max-h-[85vh] w-auto h-auto" />
         </div>
     </div>
 
@@ -801,5 +813,3 @@
 
 
 </html>
-
-
