@@ -5,7 +5,7 @@
  */
 
 // GANTI URL INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA SAAT DI-DEPLOY NANTI
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxAM959nFD9rz3nCIlFzca9FfPIRXJ2XVa6_onCcdbqyFYZ22wP273WFJQqWGPWa8Vt/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxMeweQOwYrnxddu3h7kg5VC0966bjOCv8tkLi2k9yyolvK-YbNyl4-ILbI-m7mqOqu/exec";
 
 // Global Application Data Configuration
 let AppData = {
@@ -17,6 +17,7 @@ let AppData = {
     users: [],
     todos: [],
     tabungan: [],
+    inspirasi: [],
     currentUser: null
 };
 
@@ -181,6 +182,7 @@ function performLogin() {
     renderTodos();
     renderTabungan();
     renderKalender();
+    renderInspirasiBeranda();
 
     // Reset Pin forms incase logged out
     document.getElementById('pinContainer').classList.add('hidden');
@@ -912,6 +914,8 @@ function renderSetting() {
         if (d.length > 16) d = d.substring(0, 16);
         document.getElementById('setTargetDate').value = d;
     }
+
+    renderInspirasiSetting();
 }
 
 async function submitSettings() {
@@ -945,7 +949,115 @@ async function submitSettings() {
 
 
 // =========================================================================
-// 10. PROGRESSIVE WEB APP (PWA) SERVICE WORKER & UI PROMPT
+// 10. INSPIRASI COMPONENT
+// =========================================================================
+function renderInspirasiBeranda() {
+    const defaultKalimat = '"Dan segala sesuatu Kami ciptakan berpasang-pasangan supaya kamu mengingat kebesaran Allah."';
+    const defaultDari = '- QS. Adz-Dzariyat: 49';
+
+    if (!AppData.inspirasi || AppData.inspirasi.length === 0) {
+        document.getElementById('inspirasiKalimat').innerText = defaultKalimat;
+        document.getElementById('inspirasiDari').innerText = defaultDari;
+        return;
+    }
+
+    const activeQuote = AppData.inspirasi.find(item => item.isActive === 'true');
+    if (activeQuote) {
+        document.getElementById('inspirasiKalimat').innerText = '"' + activeQuote.kalimat.replace(/^"|"$/g, '') + '"';
+        document.getElementById('inspirasiDari').innerText = '- ' + activeQuote.dari.replace(/^- /g, '');
+    } else {
+        document.getElementById('inspirasiKalimat').innerText = defaultKalimat;
+        document.getElementById('inspirasiDari').innerText = defaultDari;
+    }
+}
+
+function renderInspirasiSetting() {
+    const container = document.getElementById('inspirasiListContainer');
+    container.innerHTML = '';
+
+    if (!AppData.inspirasi || AppData.inspirasi.length === 0) {
+        container.innerHTML = '<p class="text-center text-xs text-gray-400">Belum ada kutipan inspirasi.</p>';
+        return;
+    }
+
+    AppData.inspirasi.forEach(item => {
+        const isActive = item.isActive === 'true';
+        let badge = isActive ? '<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded ml-2">Aktif</span>' : '';
+        let btnPilih = isActive ? '' : `<button type="button" onclick="setActiveInspirasi('${item.id}')" class="text-xs bg-primary/10 hover:bg-primary/20 text-primary font-bold px-3 py-1.5 rounded transition-colors">Pilih</button>`;
+
+        container.innerHTML += `
+            <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-primary/20 transition-colors">
+                <div class="flex-1 pr-4">
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200 line-clamp-2">"${item.kalimat}" ${badge}</p>
+                    <p class="text-xs text-gray-500 mt-1">- ${item.dari}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    ${btnPilih}
+                    <button type="button" onclick="deleteInspirasi('${item.id}')" class="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded transition-colors">Hapus</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+async function saveInspirasiForm() {
+    const kalimat = document.getElementById('insKalimat').value.trim();
+    const dari = document.getElementById('insDari').value.trim();
+
+    if (!kalimat || !dari) return alert("Kalimat dan sumber kutipan harus diisi!");
+
+    document.getElementById('loader').classList.remove('hidden');
+
+    try {
+        await fetchGasAPI("saveInspirasi", { id: '', kalimat: kalimat, dari: dari });
+        AppData = await fetchGasAPI("getAppData");
+
+        document.getElementById('inspirasiForm').reset();
+        renderInspirasiSetting();
+        renderInspirasiBeranda();
+        document.getElementById('loader').classList.add('hidden');
+    } catch (err) {
+        alert("Gagal menambah inspirasi: " + err.message);
+        document.getElementById('loader').classList.add('hidden');
+    }
+}
+
+async function deleteInspirasi(id) {
+    if (!confirm("Yakin ingin menghapus kutipan ini?")) return;
+    document.getElementById('loader').classList.remove('hidden');
+
+    try {
+        await fetchGasAPI("deleteInspirasi", { id: id });
+        AppData = await fetchGasAPI("getAppData");
+
+        renderInspirasiSetting();
+        renderInspirasiBeranda();
+        document.getElementById('loader').classList.add('hidden');
+    } catch (err) {
+        alert("Gagal menghapus inspirasi.");
+        document.getElementById('loader').classList.add('hidden');
+    }
+}
+
+async function setActiveInspirasi(id) {
+    document.getElementById('loader').classList.remove('hidden');
+
+    try {
+        await fetchGasAPI("setActiveInspirasi", { id: id });
+        AppData = await fetchGasAPI("getAppData");
+
+        renderInspirasiSetting();
+        renderInspirasiBeranda();
+        document.getElementById('loader').classList.add('hidden');
+    } catch (err) {
+        alert("Gagal mengaktifkan inspirasi.");
+        document.getElementById('loader').classList.add('hidden');
+    }
+}
+
+
+// =========================================================================
+// 11. PROGRESSIVE WEB APP (PWA) SERVICE WORKER & UI PROMPT
 // =========================================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
