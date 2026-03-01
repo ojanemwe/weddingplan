@@ -338,9 +338,11 @@
                                 <div class="relative z-10 h-full flex flex-col justify-between">
                                     <div>
                                         <h3 class="text-lg font-serif font-bold text-white mb-1">Inspirasi</h3>
-                                        <p class="text-white/90 text-sm font-medium italic mt-2">"Dan segala sesuatu
+                                        <p id="inspirasiKalimat" class="text-white/90 text-sm font-medium italic mt-2">
+                                            "Dan segala sesuatu
                                             Kami ciptakan berpasang-pasangan supaya kamu mengingat kebesaran Allah."</p>
-                                        <p class="text-xs text-white/70 mt-2">- QS. Adz-Dzariyat: 49</p>
+                                        <p id="inspirasiDari" class="text-xs text-white/70 mt-2">- QS. Adz-Dzariyat: 49
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -568,7 +570,7 @@
                             <h1
                                 class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-1">
                                 Tabungan</h1>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-lg">Pantau progres menuju "Serumah".
+                            <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-lg">Pantau progres pernikahan.
                             </p>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap self-start sm:self-auto">
@@ -751,6 +753,45 @@
                                         Pengaturan</button>
                                 </div>
                             </form>
+                        </div>
+
+                        <!-- Inspirasi Manajemen -->
+                        <div
+                            class="bg-white dark:bg-gray-800 rounded-xl p-5 sm:p-8 shadow-sm border border-gray-100 mt-6">
+                            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">format_quote</span> Manajemen
+                                Inspirasi
+                            </h2>
+                            <form id="inspirasiForm" class="space-y-4 mb-6">
+                                <div>
+                                    <label
+                                        class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Kalimat
+                                        Kutipan</label>
+                                    <textarea id="insKalimat" required rows="3"
+                                        class="w-full rounded-lg border-gray-300 p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 text-sm outline-none resize-none"
+                                        placeholder='Contoh: "Dan segala sesuatu Kami ciptakan berpasang-pasangan..."'></textarea>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs sm:text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Kutipan
+                                        Dari</label>
+                                    <input type="text" id="insDari" required
+                                        class="w-full rounded-lg border-gray-300 p-2 sm:p-3 bg-gray-50 dark:bg-gray-900 text-sm outline-none"
+                                        placeholder="Contoh: QS. Adz-Dzariyat: 49">
+                                </div>
+                                <div class="pt-2 flex justify-end">
+                                    <button type="button" onclick="saveInspirasiForm()"
+                                        class="bg-primary hover:bg-primary-dark text-white px-6 py-2 sm:py-3 rounded-lg text-sm font-bold shadow-sm">Tambah
+                                        Kutipan</button>
+                                </div>
+                            </form>
+
+                            <div class="border-t border-gray-100 dark:border-gray-700 pt-6">
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-4">Daftar Kutipan</h3>
+                                <div id="inspirasiListContainer" class="space-y-3">
+                                    <p class="text-center text-xs text-gray-400">Memuat...</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
