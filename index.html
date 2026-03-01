@@ -162,7 +162,7 @@
                     <nav class="hidden md:flex flex-1 justify-center gap-8" id="desktopNav">
                         <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
                             onclick="navigate('beranda')" id="nav-beranda">Beranda</a>
-                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
+                        <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200 admin-only hidden"
                             onclick="navigate('todo')" id="nav-todo">ToDo List</a>
                         <a class="nav-button text-sm font-medium hover:text-primary transition-colors dark:text-gray-200"
                             onclick="navigate('kalender')" id="nav-kalender">Kalender</a>
@@ -365,7 +365,7 @@
                                     </div>
                                     <h1
                                         class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight">
-                                        Checklist Rencana "Kita"</h1>
+                                        Checklist Rencana "KITA"</h1>
                                 </div>
                                 <button onclick="openTodoModal()"
                                     class="inline-flex items-center justify-center gap-2 rounded-lg bg-primary hover:bg-primary-dark text-white px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-bold shadow-sm w-full sm:w-auto mt-2 sm:mt-0">
@@ -378,15 +378,15 @@
                         <!-- Filters layout horizontal scroll on mobile -->
                         <div
                             class="flex flex-row overflow-x-auto items-center gap-4 sm:gap-6 border-b border-gray-200 dark:border-gray-800 px-1 sm:px-2 scrollbar-none pb-0">
-                            <button onclick="filterTodos('Semua')" id="filter-Semua"
-                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-primary text-gray-900 dark:text-white font-bold text-xs sm:text-sm">Semua</button>
                             <button onclick="filterTodos('Belum Selesai')" id="filter-Belum"
-                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Belum
+                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-primary text-gray-900 dark:text-white font-bold text-xs sm:text-sm">Belum
                                 Selesai</button>
                             <button onclick="filterTodos('Selesai')" id="filter-Selesai"
                                 class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Selesai</button>
                             <button onclick="filterTodos('Prioritas Tinggi')" id="filter-Prioritas"
                                 class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Prioritas</button>
+                            <button onclick="filterTodos('Semua')" id="filter-Semua"
+                                class="todo-filter whitespace-nowrap pb-3 border-b-2 border-transparent text-gray-500 hover:text-gray-800 dark:text-gray-400 font-medium text-xs sm:text-sm">Semua</button>
                         </div>
 
                         <!-- List Container -->
@@ -568,7 +568,7 @@
                             <h1
                                 class="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-1">
                                 Tabungan</h1>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-lg">Pantau progres pernikahan.
+                            <p class="text-gray-500 dark:text-gray-400 text-sm sm:text-lg">Pantau progres menuju "Serumah".
                             </p>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap self-start sm:self-auto">
@@ -581,7 +581,7 @@
                                 onclick="document.getElementById('fotoModalImg').src='qris.jpeg'; document.getElementById('fotoModal').classList.remove('hidden');"
                                 class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white bg-primary hover:bg-primary-dark px-3 py-1.5 sm:px-4 sm:py-2 rounded-full shadow-sm transition-colors">
                                 <span class="material-symbols-outlined text-[16px] sm:text-lg">qr_code_2</span>
-                                <span>Lihat QRIS</span>
+                                <span>Lihat QR</span>
                             </button>
                         </div>
                     </div>
@@ -768,7 +768,7 @@
                     <span class="text-[10px] sm:text-[11px] font-semibold truncate block">Beranda</span>
                 </button>
                 <button type="button" onclick="navigate('todo')" id="mobile-nav-todo"
-                    class="mobile-nav-button flex-1 flex flex-col items-center justify-center group text-gray-500 dark:text-gray-400 transition-colors">
+                    class="mobile-nav-button admin-only hidden flex-1 flex-col items-center justify-center group text-gray-500 dark:text-gray-400 transition-colors">
                     <span class="material-symbols-outlined mb-0.5 text-[24px]">checklist</span>
                     <span class="text-[10px] sm:text-[11px] font-semibold truncate block">ToDo</span>
                 </button>
@@ -813,5 +813,3 @@
 
 
 </html>
-
-
