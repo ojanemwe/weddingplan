@@ -394,7 +394,7 @@ function populateBerandaTabungan() {
 // =========================================================================
 // 6. TODO LIST MODULE
 // =========================================================================
-let currentTodoFilter = 'Semua';
+let currentTodoFilter = 'Belum Selesai';
 
 function renderTodos() {
     const container = document.getElementById('todoListContainer');
