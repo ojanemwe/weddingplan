@@ -532,32 +532,115 @@
                 </div>
             </div>
 
+            <!-- Modal Calendar Todo -->
+            <div id="calendarTodoModal"
+                class="hidden fixed inset-0 z-[200] bg-gray-900/50 backdrop-blur-sm shadow-2xl flex items-center justify-center p-4">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-lg p-5 sm:p-6 relative max-h-[90vh] flex flex-col">
+                    <button onclick="closeCalendarModal()"
+                        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                    <div class="flex items-center gap-3 mb-4 shrink-0">
+                        <div
+                            class="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">
+                            <span class="material-symbols-outlined">event</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white" id="calendarModalTitle">
+                            Daftar Tugas</h2>
+                    </div>
+                    <div id="calendarModalList"
+                        class="space-y-3 overflow-y-auto flex-1 custom-scrollbar pr-2 min-h-[100px]">
+                        <!-- Tasks will be injected here -->
+                    </div>
+                    <div class="pt-4 mt-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
+                        <button type="button" onclick="closeCalendarModal()"
+                            class="w-full px-4 py-2.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 font-bold text-sm transition-colors">Tutup</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- SECTION 3: KALENDER -->
             <div id="page-kalender" class="page-content">
                 <div
                     class="layout-container flex flex-col items-center py-6 sm:py-8 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
                     <div class="w-full flex flex-col gap-4 sm:gap-6">
                         <header
-                            class="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-6 sm:p-8 shadow-sm border border-gray-100 dark:border-gray-700 text-center">
-                            <div class="relative z-10 flex flex-col items-center gap-2 sm:gap-4">
+                            class="relative overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-4 sm:p-6 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center gap-3 sm:gap-4">
                                 <div
-                                    class="h-12 w-12 sm:h-16 sm:w-16 bg-primary/10 rounded-full flex items-center justify-center text-primary border border-primary/20">
-                                    <span class="material-symbols-outlined text-2xl sm:text-3xl">calendar_month</span>
+                                    class="h-10 w-10 sm:h-12 sm:w-12 bg-primary/10 rounded-full flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                                    <span class="material-symbols-outlined text-xl sm:text-2xl">calendar_month</span>
                                 </div>
                                 <div>
                                     <h1
-                                        class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                                        Riwayat</h1>
+                                        class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight text-center sm:text-left">
+                                        Kalender</h1>
                                     <p
-                                        class="text-gray-500 dark:text-gray-400 mt-1 sm:mt-2 text-xs sm:text-sm max-w-md mx-auto">
-                                        Tugas persiapan yang telah diselesaikan.</p>
+                                        class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm text-center sm:text-left">
+                                        Pantau jadwal persiapan per bulan.</p>
                                 </div>
                             </div>
+                            <div
+                                class="flex items-center gap-2 sm:gap-4 bg-gray-50 dark:bg-gray-900 p-1 rounded-lg border border-gray-100 dark:border-gray-700">
+                                <button onclick="changeMonth(-1)"
+                                    class="p-1 sm:p-2 hover:bg-white dark:hover:bg-gray-800 rounded text-gray-600 dark:text-gray-300 shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all"><span
+                                        class="material-symbols-outlined text-[18px] sm:text-[20px]">chevron_left</span></button>
+                                <span id="kalenderMonthYear"
+                                    class="text-sm font-bold text-gray-800 dark:text-white min-w-[120px] text-center uppercase tracking-wider">BULAN
+                                    TAHUN</span>
+                                <button onclick="changeMonth(1)"
+                                    class="p-1 sm:p-2 hover:bg-white dark:hover:bg-gray-800 rounded text-gray-600 dark:text-gray-300 shadow-sm border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all"><span
+                                        class="material-symbols-outlined text-[18px] sm:text-[20px]">chevron_right</span></button>
+                            </div>
                         </header>
-                        <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 sm:p-6 shadow-sm"
-                            id="kalenderListContainer">
-                            <div class="p-8 text-center text-gray-500 text-sm">Memuat riwayat...</div>
+
+                        <!-- Kalender Grid -->
+                        <div
+                            class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-2 sm:p-4 shadow-sm overflow-x-auto custom-scrollbar">
+                            <div class="min-w-[500px]">
+                                <!-- Hari Header -->
+                                <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
+                                    <div class="text-center text-xs font-bold text-red-500 py-2 uppercase">Min</div>
+                                    <div
+                                        class="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2 uppercase">
+                                        Sen</div>
+                                    <div
+                                        class="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2 uppercase">
+                                        Sel</div>
+                                    <div
+                                        class="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2 uppercase">
+                                        Rab</div>
+                                    <div
+                                        class="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2 uppercase">
+                                        Kam</div>
+                                    <div
+                                        class="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2 uppercase">
+                                        Jum</div>
+                                    <div
+                                        class="text-center text-xs font-bold text-gray-500 dark:text-gray-400 py-2 uppercase">
+                                        Sab</div>
+                                </div>
+                                <!-- Tanggal Grid -->
+                                <div id="kalenderGridContainer" class="grid grid-cols-7 gap-1 sm:gap-2">
+                                    <!-- Days injected here -->
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Tugas Tanpa Tenggat -->
+                        <div class="mt-4">
+                            <div class="flex items-center gap-2 mb-3">
+                                <span class="material-symbols-outlined text-primary text-[20px]">inventory_2</span>
+                                <h3 class="text-base sm:text-lg font-bold text-gray-800 dark:text-white">Tugas Tanpa
+                                    Tenggat</h3>
+                            </div>
+                            <div id="noDeadlineContainer"
+                                class="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-700 shadow-sm">
+                                <!-- No deadline tasks injected here -->
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
