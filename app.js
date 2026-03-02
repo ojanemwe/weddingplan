@@ -10,7 +10,7 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxMeweQOwYrnxddu3h7
 // Global Application Data Configuration
 let AppData = {
     settings: {
-        AppTitle: "Wedding Plan",
+        AppTitle: "Love Planner",
         TargetDate: "2026-06-04T23:59:00",
         TargetTabungan: 150000000
     },
@@ -653,50 +653,240 @@ function closeTodoDetailModal() {
 
 
 // =========================================================================
-// 7. KALENDER COMPONENT (LOG HISTORY)
+// 7. KALENDER COMPONENT (MONTHLY VIEW)
 // =========================================================================
+let currentCalMonth = new Date().getMonth();
+let currentCalYear = new Date().getFullYear();
+let activeCalendarDateStr = null; // Track currently opened date in modal
+
 function renderKalender() {
-    const container = document.getElementById('kalenderListContainer');
+    const container = document.getElementById('kalenderGridContainer');
+    if (!container) return; // Prevent errors if on another page that somehow calls this
     container.innerHTML = '';
 
-    let doneTodos = AppData.todos.filter(x => x.status === 'Selesai');
+    // Update Header Text
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    document.getElementById('kalenderMonthYear').innerText = `${monthNames[currentCalMonth]} ${currentCalYear}`;
 
-    if (doneTodos.length === 0) {
-        container.innerHTML = `
-        <div class="py-12 text-center flex flex-col items-center gap-3">
-            <div class="h-16 w-16 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400">
-                <span class="material-symbols-outlined text-3xl">event_available</span>
-            </div>
-            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Belum Ada Riwayat</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-sm max-w-sm">Tugas ToDo List yang telah ditandai Selesai akan muncul di sini sebagai rekam jejak persiapan acara.</p>
+    // Calculate days
+    const firstDay = new Date(currentCalYear, currentCalMonth, 1).getDay(); // 0 (Sun) to 6 (Sat)
+    const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+    const today = new Date();
+    const isCurrentMonthThisMonth = today.getMonth() === currentCalMonth && today.getFullYear() === currentCalYear;
+
+    let htmlContent = '';
+
+    // Empty blocks for days before start of month
+    for (let i = 0; i < firstDay; i++) {
+        htmlContent += `<div class="aspect-square bg-gray-50/50 dark:bg-gray-800/20 rounded-lg border border-transparent"></div>`;
+    }
+
+    // Days blocks
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dObj = new Date(currentCalYear, currentCalMonth, day);
+        // Format YYYY-MM-DD
+        const dateStr = `${currentCalYear}-${(currentCalMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+
+        // Find tasks for this exact day (ignore time)
+        const dayTodos = AppData.todos.filter(t => t.deadline && t.deadline.startsWith(dateStr));
+        const hasTasks = dayTodos.length > 0;
+        const allDone = hasTasks && dayTodos.every(t => t.status === 'Selesai');
+        const isPastOrToday = dObj.getTime() <= new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime();
+        const isFuture = dObj.getTime() > new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime();
+
+        let isToday = isCurrentMonthThisMonth && day === today.getDate();
+
+        // Styling based on state
+        let bgClass = "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/80 cursor-pointer border border-gray-100 dark:border-gray-700";
+        let textClass = "text-gray-700 dark:text-gray-300";
+
+        if (isToday) {
+            bgClass = "bg-primary/10 border-primary cursor-pointer hover:bg-primary/20";
+            textClass = "text-primary font-bold";
+        }
+
+        // Indicators
+        let indicatorHtml = '';
+        if (hasTasks) {
+            let dotColor = allDone ? 'bg-green-500' : 'bg-primary';
+            if (isFuture && !allDone) dotColor = 'bg-gray-400 dark:bg-gray-500'; // Upcoming tasks
+
+            indicatorHtml = `
+            <div class="absolute bottom-1 sm:bottom-2 left-1/2 -translate-x-1/2 flex gap-0.5">
+                <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${dotColor}"></span>
+            </div>`;
+        }
+
+        htmlContent += `
+        <div onclick="openCalendarModal('${dateStr}', ${isFuture})" class="relative aspect-[4/3] sm:aspect-square ${bgClass} rounded-lg flex flex-col items-center justify-center transition-all shadow-sm">
+            <span class="text-xs sm:text-base ${textClass}">${day}</span>
+            ${indicatorHtml}
         </div>`;
+    }
+
+    container.innerHTML = htmlContent;
+
+    // Call no deadline render as well
+    renderNoDeadlineTodos();
+}
+
+function changeMonth(offset) {
+    currentCalMonth += offset;
+    if (currentCalMonth > 11) {
+        currentCalMonth = 0;
+        currentCalYear++;
+    } else if (currentCalMonth < 0) {
+        currentCalMonth = 11;
+        currentCalYear--;
+    }
+    renderKalender();
+}
+
+function renderNoDeadlineTodos() {
+    const container = document.getElementById('noDeadlineContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const noDeadlineTodos = AppData.todos.filter(t => !t.deadline || t.deadline.trim() === '');
+
+    if (noDeadlineTodos.length === 0) {
+        container.innerHTML = `<p class="text-center text-gray-500 text-sm p-6">Tidak ada tugas tanpa tenggat.</p>`;
         return;
     }
 
-    let htmlContent = '<div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 dark:before:via-gray-700 before:to-transparent">';
-
-    doneTodos.forEach(item => {
+    noDeadlineTodos.forEach(item => {
+        const isDone = item.status === 'Selesai';
         const picColor = getPicColor(item.penanggungJawab);
-        htmlContent += `
-         <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white dark:border-gray-800 bg-primary/20 text-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 backdrop-blur-sm">
-                <span class="material-symbols-outlined text-[20px]">check_circle</span>
-            </div>
-            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-gray-100 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 shadow-sm transition-all hover:bg-gray-50 dark:hover:bg-gray-700 hover:shadow-md">
-                <div class="flex items-center justify-between space-x-2 mb-1">
-                    <div class="font-bold text-gray-900 dark:text-white text-sm">${item.tugas}</div>
-                    <span class="text-[10px] uppercase font-bold text-green-600 dark:text-green-400 flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">done_all</span> Selesai</span>
-                </div>
-                <div class="text-xs text-gray-500 mb-2">Kategori: <span class="font-medium text-gray-700 dark:text-gray-300">${item.kategori}</span></div>
-                <div class="flex items-center gap-2">
-                    <span class="inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase border ${picColor}">Oleh ${item.penanggungJawab}</span>
-                </div>
-            </div>
-        </div>`;
-    });
 
-    htmlContent += '</div>';
-    container.innerHTML = htmlContent;
+        container.innerHTML += `
+            <div class="group flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer" onclick="toggleTodoStatus('${item.id}', '${item.status}')">
+                <div class="mt-0.5 relative flex items-center justify-center shrink-0">
+                    <div class="h-5 w-5 rounded border-2 ${isDone ? 'border-primary bg-primary' : 'border-gray-300 dark:border-gray-600'} flex items-center justify-center transition-colors">
+                        ${isDone ? '<span class="material-symbols-outlined text-white text-[16px] animate-check">check</span>' : ''}
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0 pr-4">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-bold text-primary uppercase tracking-wider">${item.kategori}</span>
+                        ${item.prioritas === 'Tinggi' ? `<span class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Penting</span>` : ''}
+                    </div>
+                    <p class="text-sm font-bold ${isDone ? 'text-gray-400 dark:text-gray-500 todo-text-strike' : 'text-gray-800 dark:text-gray-100 todo-text-nostrike'} mb-1">${item.tugas}</p>
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] sm:text-xs font-bold border ${picColor}">PIC: ${item.penanggungJawab}</span>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function openCalendarModal(dateStr, isFuture) {
+    activeCalendarDateStr = dateStr;
+    const dateObj = new Date(dateStr);
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    document.getElementById('calendarModalTitle').innerText = dateObj.toLocaleDateString('id-ID', options);
+
+    renderCalendarTodoList(dateStr, isFuture);
+    document.getElementById('calendarTodoModal').classList.remove('hidden');
+}
+
+function closeCalendarModal() {
+    document.getElementById('calendarTodoModal').classList.add('hidden');
+    activeCalendarDateStr = null;
+}
+
+function renderCalendarTodoList(dateStr, isFuture) {
+    const listContainer = document.getElementById('calendarModalList');
+    listContainer.innerHTML = '';
+
+    const dayTodos = AppData.todos.filter(t => t.deadline && t.deadline.startsWith(dateStr));
+
+    if (dayTodos.length === 0) {
+        listContainer.innerHTML = `<p class="text-center text-gray-500 text-sm mt-4">Yeay! Tidak ada jadwal tugas pada hari ini.</p>`;
+        return;
+    }
+
+    dayTodos.forEach(item => {
+        const isDone = item.status === 'Selesai';
+        const picColor = getPicColor(item.penanggungJawab);
+
+        let checkboxAction = `onclick="event.stopPropagation(); toggleTodoCalendarStatus('${item.id}', '${item.status}')"`;
+        let checkboxStyle = isDone ? 'border-primary bg-primary' : 'border-gray-300 dark:border-gray-600';
+        let rowAction = `onclick="toggleTodoCalendarStatus('${item.id}', '${item.status}')"`;
+        let containerOpacity = "";
+
+        if (isFuture) {
+            checkboxAction = 'onclick="event.stopPropagation();" title="Tugas masa depan belum bisa diselesaikan"';
+            rowAction = 'title="Tugas masa depan belum bisa diselesaikan"';
+            checkboxStyle = 'border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 cursor-not-allowed';
+            containerOpacity = "opacity-80";
+        }
+
+        listContainer.innerHTML += `
+             <div class="group flex items-start gap-3 p-3 rounded-xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-primary/20 transition-all ${containerOpacity} ${!isFuture ? 'cursor-pointer' : ''}" ${rowAction}>
+                <div class="mt-1 relative flex items-center justify-center shrink-0" ${checkboxAction}>
+                    <div class="h-5 w-5 sm:h-6 sm:w-6 rounded border-2 ${checkboxStyle} flex items-center justify-center transition-colors">
+                        ${isDone ? '<span class="material-symbols-outlined text-white text-[16px] animate-check">check</span>' : ''}
+                        ${isFuture && !isDone ? '<span class="material-symbols-outlined text-gray-400 text-[12px]">lock</span>' : ''}
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0 pr-2">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-bold text-primary uppercase tracking-wider">${item.kategori}</span>
+                        ${item.prioritas === 'Tinggi' ? `<span class="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[9px] px-1.5 py-0.5 rounded font-bold uppercase">Penting</span>` : ''}
+                    </div>
+                    <p class="text-sm font-bold ${isDone ? 'text-gray-400 dark:text-gray-500 todo-text-strike' : 'text-gray-800 dark:text-gray-100 todo-text-nostrike'} mb-1">${item.tugas}</p>
+                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold border ${picColor}">PIC: ${item.penanggungJawab}</span>
+                </div>
+             </div>
+        `;
+    });
+}
+
+function toggleTodoCalendarStatus(id, currentStatus) {
+    if (!AppData.currentUser || AppData.currentUser.role !== 'admin') return alert("Akses Ditolak: Hanya Admin.");
+
+    // Check if future directly inside toggle (though UI prevents it, this is double lock)
+    const itemA = AppData.todos.find(x => x.id === id);
+    if (itemA && itemA.deadline) {
+        const dObj = new Date(itemA.deadline.substring(0, 10));
+        const today = new Date();
+        const isFuture = dObj.getTime() > new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime();
+        if (isFuture) {
+            return alert("Tugas yang jadwalnya di masa depan tidak bisa ditandai selesai.");
+        }
+    }
+
+    const newStatus = currentStatus === 'Selesai' ? 'Belum Selesai' : 'Selesai';
+    if (itemA) itemA.status = newStatus;
+
+    // Refresh views immediately
+    renderTodos();
+    populateBerandaTodoList();
+    renderKalender();
+
+    // If modal is open, refresh it
+    if (activeCalendarDateStr) {
+        // Recalculate isFuture just in case
+        const targetDObj = new Date(activeCalendarDateStr);
+        const today = new Date();
+        const isFuture = targetDObj.getTime() > new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59).getTime();
+        renderCalendarTodoList(activeCalendarDateStr, isFuture);
+    }
+
+    // Server request
+    fetchGasAPI("toggleTodoStatus", { id: id, statusTarget: newStatus })
+        .then(res => {
+            // Background sync
+            fetchGasAPI("getAppData").then(data => { AppData = data; });
+        })
+        .catch(err => {
+            // Revert
+            if (itemA) itemA.status = currentStatus;
+            renderTodos();
+            renderKalender();
+            if (activeCalendarDateStr) renderCalendarTodoList(activeCalendarDateStr, false); // Best effort revert inside modal
+            alert("Gagal update status koneksi.");
+        });
 }
 
 
